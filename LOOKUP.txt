@@ -1,0 +1,243 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LOOKUP-COB.
+       AUTHOR. RICHARD JACKSON.
+       INSTALLATION. SURRY COMMUNITY COLLEGE.
+       DATE-WRITTEN. 04-18-01.
+       SECURITY. TOP SECRET.
+      *
+      *THIS PROGRAM ACCEPTS THE SALESNUMBER FROM THE USER
+      *AND SEARCHES THE SALESPERSON FILE FOR THE NUMBER AND
+      *DISPLAYS THE SALESPERSON RECORD IF FOUND.
+      *
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER. PRIME-2950.
+       OBJECT-COMPUTER. PRIME-2950.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT SALES-PERSON-FILE
+               ASSIGN TO PFMS.
+      *
+       DATA DIVISION.
+       FILE SECTION.
+       FD  SALES-PERSON-FILE COMPRESSED
+           LABEL RECORDS ARE OMITTED
+           RECORD CONTAINS 80 CHARACTERS
+           DATA RECORD IS SALES-PERSON-DATA
+           VALUE OF FILE-ID IS 'STUDENT>DATA>FILE1'.
+       01  SALES-PERSON-DATA           PIC X(80).
+       WORKING-STORAGE SECTION.
+       01  SALES-PERSON-RECORD.
+           05  SALES-PERSON-TABLE OCCURS 54 TIMES.
+               10  SP-REGION           PIC 99.
+               10  SP-NUMBER           PIC 9999.
+               10  SP-NAME             PIC X(18).
+               10  SP-QUOTA-CLS        PIC X.
+               10  SP-COMM-CLS         PIC 9.
+               10  SP-YTD-SALES        PIC 9(6)V99.
+               10  SP-YTD-RETURNS      PIC 9(5)V99.
+               10  SP-CUR-MON          PIC 99.
+               10  SP-CUR-YEAR         PIC 99.
+               10  SP-CUR-MON-SALES    PIC 9(5)V99.
+               10  SP-CUR-MON-RETURNS  PIC 9(4)V99.
+               10  FILLER              PIC X(22).
+       01  WS-SCREEN1-LINE1.
+           05  FILLER                  PIC X(28) VALUE SPACES.
+           05  FILLER                  PIC X(23)
+               VALUE 'SALESPERSON DATA LOOKUP'.
+       01  WS-SCREEN1-LINE2.
+           05  FILLER                  PIC X(20) VALUE SPACES.
+           05  FILLER                  PIC X(41)
+               VALUE 'PLEASE ENTER A 4 DIGIT SALESPERSON NUMBER'.
+       01  WS-SCREEN1-LINE3.
+           05  FILLER                  PIC X(27) VALUE SPACES.
+           05  FILLER                  PIC X(27)
+               VALUE 'USE LEADING ZEROS IF NEEDED'.
+       01  WS-SCREEN1-LINE4.
+           05  FILLER                  PIC X(27) VALUE SPACES.
+           05  FILLER                  PIC X(27)
+               VALUE 'TO END PROGRAM ENTER ''9999'''.
+       01  WS-SCREEN1-LINE5.
+           05  FILLER                  PIC X(25) VALUE SPACES.
+           05  FILLER                  PIC X(31)
+               VALUE '==TYPE NUMBER AND PRESS ENTER=='.
+       01  WS-SCREEN2-LINE2.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(46) VALUE
+           'REGION ...................................... '.
+           05  WS-REGION               PIC Z9.
+       01  WS-SCREEN2-LINE3.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(44) VALUE
+           'NUMBER .................................... '.
+           05  WS-NUMBER               PIC ZZZ9.
+       01  WS-SCREEN2-LINE4.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(30) VALUE
+           'NAME ....................... '.
+           05  WS-NAME                 PIC X(18).
+       01  WS-SCREEN2-LINE5.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(47) VALUE
+           'QUOTA CLASS .................................. '.
+           05  WS-QUOTA-CLS            PIC 9.
+       01  WS-SCREEN2-LINE6.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(47) VALUE
+           'COMMISSION CLASS ............................. '.
+           05  WS-COMM-CLS             PIC X.
+       01  WS-SCREEN2-LINE7.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(37) VALUE
+           'YTD SALES .......................... '.
+           05  WS-YTD-SALES            PIC $ZZZ,ZZ9.99.
+       01  WS-SCREEN2-LINE8.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(38) VALUE
+           'YTD RETURNS ......................... '.
+           05  WS-YTD-RETURNS          PIC $ZZ,ZZ9.99.
+       01  WS-SCREEN2-LINE9.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(46) VALUE
+           'CURRENT MONTH ............................... '.
+           05  WS-CUR-MON              PIC 99.
+       01  WS-SCREEN2-LINE10.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(46) VALUE
+           'CURRENT YEAR ................................ '.
+           05  WS-CUR-YEAR             PIC 99.
+       01  WS-SCREEN2-LINE11.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(38) VALUE
+           'CURRENT MONTH SALES ................. '.
+           05  WS-CUR-MON-SALES        PIC $ZZ,ZZ9.99.
+       01  WS-SCREEN2-LINE12.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(39) VALUE
+           'CURRENT MONTH RETURNS ................ '.
+           05  WS-CUR-MON-RETURNS      PIC $Z,ZZ9.99.
+       01  WS-SCREEN2-LINE13.
+           05  FILLER                  PIC X(26) VALUE SPACES.
+           05  FILLER                  PIC X(27)
+           VALUE '==PRESS ENTER TO CONTINUE=='.
+       01  WS-SCREEN3-LINE1.
+           05  FILLER                  PIC X(16) VALUE SPACES.
+           05  FILLER                  PIC X(19)
+           VALUE 'SALESPERSON NUMBER '.
+           05  WS-INPUT-NUMBER-OUT     PIC 9999.
+           05  FILLER                  PIC X(15)
+           VALUE ' WAS NOT FOUND!'.
+       01  WS-CLS                      PIC X VALUE '?'.
+       01  WS-BLANK-LINE               PIC X VALUE SPACES.
+       01  WS-SUB                      PIC 99.
+       01  WS-HOLD                     PIC 99.
+       01  WS-FOUND                    PIC X.
+           88  FOUND                   VALUE 'Y'.
+       01  WS-INPUT-NUMBER             PIC 9999.
+       01  WS-DUMMY                    PIC X.
+      *
+       PROCEDURE DIVISION.
+      *
+       A000-MAIN-CONTROL.
+           PERFORM B000-INITIALIZATION.
+           PERFORM B010-LOAD-ARRAY.
+           PERFORM U000-ACCEPT-INPUT.
+           PERFORM B020-PRODUCE-OUTPUT
+               UNTIL WS-INPUT-NUMBER IS EQUAL TO 9999.
+           PERFORM B030-TERMINATION.
+       B000-INITIALIZATION.
+           OPEN INPUT SALES-PERSON-FILE.
+       B010-LOAD-ARRAY.
+           PERFORM U010-READ
+               VARYING WS-SUB FROM 1 BY 1
+                   UNTIL WS-SUB > 54.
+       B020-PRODUCE-OUTPUT.
+           PERFORM C000-SET-FLAGS.
+           PERFORM C010-LOOKUP-DATA.
+           IF FOUND
+               PERFORM C020-FOUND
+           ELSE
+               PERFORM C030-NOT-FOUND
+           END-IF.
+           PERFORM U000-ACCEPT-INPUT.
+       B030-TERMINATION.
+           CLOSE SALES-PERSON-FILE.
+           STOP RUN.
+       C000-SET-FLAGS.
+           MOVE 'N' TO WS-FOUND.
+       C010-LOOKUP-DATA.
+           PERFORM VARYING WS-SUB FROM 1 BY 1
+               UNTIL WS-SUB > 54 OR FOUND
+                   IF SP-NUMBER (WS-SUB) IS EQUAL TO WS-INPUT-NUMBER
+                        MOVE 'Y' TO WS-FOUND
+                        MOVE WS-SUB TO WS-HOLD
+                   END-IF
+           END-PERFORM.
+       C020-FOUND.
+           MOVE SP-REGION (WS-HOLD) TO WS-REGION.
+           MOVE SP-NUMBER (WS-HOLD) TO WS-NUMBER.
+           MOVE SP-NAME (WS-HOLD)TO WS-NAME.
+           MOVE SP-QUOTA-CLS (WS-HOLD) TO WS-QUOTA-CLS.
+           MOVE SP-COMM-CLS (WS-HOLD) TO WS-COMM-CLS.
+           MOVE SP-YTD-SALES (WS-HOLD) TO WS-YTD-SALES.
+           MOVE SP-YTD-RETURNS (WS-HOLD)TO WS-YTD-RETURNS.
+           MOVE SP-CUR-YEAR (WS-HOLD) TO WS-CUR-YEAR.
+           MOVE SP-CUR-MON (WS-HOLD) TO WS-CUR-MON.
+           MOVE SP-CUR-MON-SALES (WS-HOLD) TO WS-CUR-MON-SALES.
+           MOVE SP-CUR-MON-RETURNS (WS-HOLD) TO WS-CUR-MON-RETURNS.
+           DISPLAY WS-CLS.
+           PERFORM 4 TIMES
+               DISPLAY WS-BLANK-LINE
+           END-PERFORM.
+           DISPLAY WS-SCREEN1-LINE1.
+           DISPLAY WS-BLANK-LINE.
+           DISPLAY WS-SCREEN2-LINE2.
+           DISPLAY WS-SCREEN2-LINE3.
+           DISPLAY WS-SCREEN2-LINE4.
+           DISPLAY WS-SCREEN2-LINE5.
+           DISPLAY WS-SCREEN2-LINE6.
+           DISPLAY WS-SCREEN2-LINE7.
+           DISPLAY WS-SCREEN2-LINE8.
+           DISPLAY WS-SCREEN2-LINE9.
+           DISPLAY WS-SCREEN2-LINE10.
+           DISPLAY WS-SCREEN2-LINE11.
+           DISPLAY WS-SCREEN2-LINE12.
+           PERFORM 3 TIMES
+               DISPLAY WS-BLANK-LINE
+           END-PERFORM.
+           DISPLAY WS-SCREEN2-LINE13.
+           ACCEPT WS-DUMMY.
+       C030-NOT-FOUND.
+           MOVE WS-INPUT-NUMBER TO WS-INPUT-NUMBER-OUT.
+           DISPLAY WS-CLS.
+           PERFORM 5 TIMES
+               DISPLAY WS-BLANK-LINE
+           END-PERFORM.
+           DISPLAY WS-SCREEN3-LINE1.
+           DISPLAY WS-SCREEN2-LINE13.
+           ACCEPT WS-DUMMY.
+       U000-ACCEPT-INPUT.
+           DISPLAY WS-CLS.
+           PERFORM 7 TIMES
+               DISPLAY WS-BLANK-LINE
+           END-PERFORM.
+           DISPLAY WS-SCREEN1-LINE1.
+           PERFORM 2 TIMES
+               DISPLAY WS-BLANK-LINE
+           END-PERFORM.
+           DISPLAY WS-SCREEN1-LINE2.
+           DISPLAY WS-SCREEN1-LINE3.
+           DISPLAY WS-BLANK-LINE.
+           DISPLAY WS-SCREEN1-LINE4.
+           DISPLAY WS-BLANK-LINE.
+           DISPLAY WS-SCREEN1-LINE5.
+           ACCEPT WS-INPUT-NUMBER.
+       U010-READ.
+           READ SALES-PERSON-FILE
+               INTO SALES-PERSON-TABLE(WS-SUB)
+                   AT END PERFORM U020-LOAD-ERROR.
+       U020-LOAD-ERROR.
+           DISPLAY '?'.
+           DISPLAY 'READ PAST END ERROR!'.
+           CLOSE SALES-PERSON-FILE.
+           STOP RUN.
